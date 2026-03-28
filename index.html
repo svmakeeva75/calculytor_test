@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор расхода фасадных кассет</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --bg-card: #ffffff;
+      --text: #1a2332;
+      --text-muted: #5c6b7f;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border: #e2e8f0;
+      --success-bg: #ecfdf5;
+      --success-border: #6ee7b7;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+      --header-bg: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f1419;
+      --bg-card: #1a222d;
+      --text: #e8edf4;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --border: #2d3a4d;
+      --success-bg: #0d2818;
+      --success-border: #059669;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+      --header-bg: linear-gradient(135deg, #0c1929 0%, #1e3a5f 100%);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      transition: background 0.25s ease, color 0.2s ease;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: #fff;
+      padding: 1.25rem 1rem 1.75rem;
+      border-radius: 0 0 var(--radius) var(--radius);
+      margin: 0 -1rem 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    @media (min-width: 768px) {
+      header {
+        margin: 0 0 1.75rem;
+        border-radius: var(--radius);
+      }
+    }
+
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .header-text h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.25rem, 4vw, 1.65rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.92;
+      max-width: 36ch;
+    }
+
+    .btn-theme {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-theme:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-theme:active {
+      transform: scale(0.98);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+      transition: background 0.25s, border-color 0.2s;
+    }
+
+    .card h2 {
+      margin: 0 0 1rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 520px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .field input {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    [data-theme="dark"] .field input:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    .presets {
+      margin-top: 0.25rem;
+    }
+
+    .presets-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .btn-preset {
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-preset:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      padding: 0.65rem 1.15rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    [data-theme="dark"] .btn-secondary {
+      background: #2d3a4d;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      filter: brightness(0.95);
+    }
+
+    [data-theme="dark"] .btn-secondary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+
+    .btn-outline:hover {
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    [data-theme="dark"] .btn-outline:hover {
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .results-card {
+      border-color: var(--success-border);
+      background: linear-gradient(180deg, var(--success-bg) 0%, var(--bg-card) 48%);
+    }
+
+    [data-theme="dark"] .results-card {
+      background: linear-gradient(180deg, var(--success-bg) 0%, var(--bg-card) 40%);
+    }
+
+    .results-card.hidden {
+      display: none;
+    }
+
+    .results-grid {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    @media (min-width: 480px) {
+      .results-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .result-item {
+      padding: 0.75rem 0.9rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .result-item dt {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .result-item dd {
+      margin: 0.25rem 0 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .comment-block {
+      margin-top: 1.15rem;
+      padding: 1rem 1.1rem;
+      background: var(--bg);
+      border-radius: 10px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .comment-block h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .comment-block p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .error-msg {
+      margin-top: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      color: #b91c1c;
+      background: #fef2f2;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+      display: none;
+    }
+
+    [data-theme="dark"] .error-msg {
+      color: #fca5a5;
+      background: #3f1d1d;
+      border-color: #7f1d1d;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    .print-only {
+      display: none;
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+
+      .print-only {
+        display: block !important;
+      }
+
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        max-width: 100%;
+        padding: 0.5rem 0;
+      }
+
+      header {
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin: 0 0 1rem !important;
+        padding: 1rem !important;
+      }
+
+      .header-text h1,
+      .header-text p {
+        color: #000 !important;
+        opacity: 1;
+      }
+
+      .card {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+
+      .results-card {
+        background: #fff !important;
+        border: 1px solid #059669 !important;
+      }
+
+      .result-item {
+        background: #fafafa !important;
+        border-color: #ddd !important;
+      }
+
+      .result-item dt {
+        color: #555 !important;
+      }
+
+      .result-item dd {
+        color: #000 !important;
+      }
+
+      .comment-block {
+        background: #f5f5f5 !important;
+        border-left-color: #2563eb !important;
+      }
+
+      .comment-block h3 {
+        color: #555 !important;
+      }
+
+      .print-params {
+        margin-bottom: 1rem;
+        padding: 0.85rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+
+      .print-params h2 {
+        margin: 0 0 0.6rem;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .print-params ul {
+        margin: 0;
+        padding-left: 1.25rem;
+      }
+
+      .print-params li {
+        margin-bottom: 0.25rem;
+      }
+
+      .print-date {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: #555 !important;
+      }
+
+      .results-card.hidden {
+        display: none !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="header-row">
+        <div class="header-text">
+          <h1>Калькулятор расхода фасадных кассет</h1>
+          <p>Расчёт количества кассет, площади облицовки и ориентировочной стоимости</p>
+        </div>
+        <button type="button" class="btn-theme no-print" id="themeToggle" aria-label="Переключить тему">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Тёмная</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div id="printParams" class="print-only print-params" aria-hidden="true"></div>
+
+      <section class="card no-print" aria-labelledby="form-title">
+        <h2 id="form-title">Исходные данные</h2>
+        <form id="calcForm" class="form-grid" novalidate>
+          <div class="field">
+            <label for="wallWidth">Ширина стены (м)</label>
+            <input type="number" id="wallWidth" name="wallWidth" min="0" step="0.01" placeholder="например, 12" />
+          </div>
+          <div class="field">
+            <label for="wallHeight">Высота стены (м)</label>
+            <input type="number" id="wallHeight" name="wallHeight" min="0" step="0.01" placeholder="например, 8" />
+          </div>
+          <div class="field">
+            <label for="openingsArea">Площадь проёмов (м²)</label>
+            <input type="number" id="openingsArea" name="openingsArea" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div class="field">
+            <label for="cassetteW">Ширина кассеты (мм)</label>
+            <input type="number" id="cassetteW" name="cassetteW" min="1" step="1" placeholder="600" />
+          </div>
+          <div class="field">
+            <label for="cassetteH">Высота кассеты (мм)</label>
+            <input type="number" id="cassetteH" name="cassetteH" min="1" step="1" placeholder="600" />
+          </div>
+          <div class="field">
+            <label for="reserve">Запас (%)</label>
+            <input type="number" id="reserve" name="reserve" min="0" step="0.1" placeholder="7" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label for="price">Цена за 1 кассету (₽)</label>
+            <input type="number" id="price" name="price" min="0" step="0.01" placeholder="0" />
+          </div>
+        </form>
+
+        <div class="presets">
+          <span class="presets-label">Быстрый выбор размера кассеты</span>
+          <div class="preset-row">
+            <button type="button" class="btn-preset" data-w="500" data-h="500">500×500</button>
+            <button type="button" class="btn-preset" data-w="600" data-h="600">600×600</button>
+            <button type="button" class="btn-preset" data-w="1160" data-h="720">1160×720</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btnCalc">Рассчитать</button>
+          <button type="button" class="btn btn-secondary" id="btnClear">Очистить</button>
+          <button type="button" class="btn btn-outline" id="btnDownload">Скачать расчёт</button>
+          <button
+            type="button"
+            class="btn btn-outline"
+            id="btnPrint"
+            title="В окне печати выберите принтер «Сохранить как PDF» или «Microsoft Print to PDF»"
+          >
+            Печать / PDF
+          </button>
+        </div>
+        <p class="error-msg" id="errorMsg" role="alert"></p>
+      </section>
+
+      <section class="card results-card hidden" id="resultsSection" aria-live="polite">
+        <h2>Результаты расчёта</h2>
+        <dl class="results-grid">
+          <div class="result-item">
+            <dt>Общая площадь фасада</dt>
+            <dd id="outGross">—</dd>
+          </div>
+          <div class="result-item">
+            <dt>Чистая площадь облицовки</dt>
+            <dd id="outNet">—</dd>
+          </div>
+          <div class="result-item">
+            <dt>Площадь одной кассеты</dt>
+            <dd id="outCassetteArea">—</dd>
+          </div>
+          <div class="result-item">
+            <dt>Количество кассет</dt>
+            <dd id="outQty">—</dd>
+          </div>
+          <div class="result-item">
+            <dt>Количество кассет с запасом</dt>
+            <dd id="outQtyReserve">—</dd>
+          </div>
+          <div class="result-item">
+            <dt>Ориентировочная стоимость</dt>
+            <dd id="outCost">—</dd>
+          </div>
+        </dl>
+        <div class="comment-block">
+          <h3>Комментарий</h3>
+          <p id="outComment">—</p>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var THEME_KEY = "facade-calc-theme";
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function escapeHtml(s) {
+        var d = document.createElement("div");
+        d.textContent = s == null ? "" : String(s);
+        return d.innerHTML;
+      }
+
+      function fillPrintParams() {
+        var v = getInputs();
+        var lines = [
+          "<h2>Исходные данные</h2>",
+          "<ul>",
+          "<li>Ширина стены: " + escapeHtml(v.wallWidth || "—") + " м</li>",
+          "<li>Высота стены: " + escapeHtml(v.wallHeight || "—") + " м</li>",
+          "<li>Площадь проёмов: " + escapeHtml(v.openingsArea || "0") + " м²</li>",
+          "<li>Размер кассеты: " + escapeHtml(v.cassetteW || "—") + " × " + escapeHtml(v.cassetteH || "—") + " мм</li>",
+          "<li>Запас: " + escapeHtml(v.reserve || "0") + " %</li>",
+          "<li>Цена за 1 кассету: " + escapeHtml(v.price || "0") + " ₽</li>",
+          "</ul>",
+          '<p class="print-date">Дата расчёта: ' + escapeHtml(new Date().toLocaleString("ru-RU")) + "</p>"
+        ];
+        $("printParams").innerHTML = lines.join("");
+      }
+
+      function runPrint() {
+        if (!lastResult) {
+          showError("Сначала выполните расчёт.");
+          return;
+        }
+        hideError();
+        fillPrintParams();
+        window.print();
+      }
+
+      function formatNum(n, decimals) {
+        if (decimals === undefined) decimals = 2;
+        return Number(n).toLocaleString("ru-RU", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function formatInt(n) {
+        return Math.round(n).toLocaleString("ru-RU");
+      }
+
+      function ceilQty(value) {
+        return Math.ceil(value);
+      }
+
+      function parsePositive(str, allowZero) {
+        var n = parseFloat(String(str).replace(",", "."));
+        if (isNaN(n) || n < 0) return null;
+        if (!allowZero && n === 0) return null;
+        return n;
+      }
+
+      function getInputs() {
+        return {
+          wallWidth: $("wallWidth").value,
+          wallHeight: $("wallHeight").value,
+          openingsArea: $("openingsArea").value,
+          cassetteW: $("cassetteW").value,
+          cassetteH: $("cassetteH").value,
+          reserve: $("reserve").value,
+          price: $("price").value
+        };
+      }
+
+      function validateAndCalculate() {
+        var v = getInputs();
+        var w = parsePositive(v.wallWidth, false);
+        var h = parsePositive(v.wallHeight, false);
+        if (w === null || h === null) {
+          return { error: "Укажите ширину и высоту стены (положительные числа)." };
+        }
+        var openings = parsePositive(v.openingsArea === "" ? "0" : v.openingsArea, true);
+        if (openings === null) {
+          return { error: "Площадь проёмов должна быть неотрицательным числом." };
+        }
+        var cw = parsePositive(v.cassetteW, false);
+        var ch = parsePositive(v.cassetteH, false);
+        if (cw === null || ch === null) {
+          return { error: "Укажите ширину и высоту кассеты в миллиметрах." };
+        }
+        var reservePct = parsePositive(v.reserve === "" ? "0" : v.reserve, true);
+        if (reservePct === null) {
+          return { error: "Запас должен быть неотрицательным числом." };
+        }
+        var price = parsePositive(v.price === "" ? "0" : v.price, true);
+        if (price === null) {
+          return { error: "Цена должна быть неотрицательным числом." };
+        }
+
+        var grossArea = w * h;
+        var netArea = grossArea - openings;
+        if (netArea < 0) {
+          return { error: "Площадь проёмов не может превышать площадь стены." };
+        }
+
+        var cassetteAreaM2 = (cw / 1000) * (ch / 1000);
+        if (cassetteAreaM2 <= 0) {
+          return { error: "Некорректная площадь кассеты." };
+        }
+
+        var qty = ceilQty(netArea / cassetteAreaM2);
+        var qtyWithReserve = ceilQty(qty * (1 + reservePct / 100));
+        var cost = qtyWithReserve * price;
+
+        return {
+          error: null,
+          grossArea: grossArea,
+          netArea: netArea,
+          cassetteAreaM2: cassetteAreaM2,
+          qty: qty,
+          qtyWithReserve: qtyWithReserve,
+          cost: cost,
+          reservePct: reservePct
+        };
+      }
+
+      function showError(msg) {
+        var el = $("errorMsg");
+        el.textContent = msg;
+        el.classList.add("visible");
+      }
+
+      function hideError() {
+        var el = $("errorMsg");
+        el.textContent = "";
+        el.classList.remove("visible");
+      }
+
+      function displayResults(r) {
+        $("outGross").textContent = formatNum(r.grossArea) + " м²";
+        $("outNet").textContent = formatNum(r.netArea) + " м²";
+        $("outCassetteArea").textContent = formatNum(r.cassetteAreaM2) + " м²";
+        $("outQty").textContent = formatInt(r.qty) + " шт.";
+        $("outQtyReserve").textContent = formatInt(r.qtyWithReserve) + " шт.";
+        $("outCost").textContent = formatNum(r.cost) + " ₽";
+
+        var comment =
+          "Для объекта потребуется " +
+          r.qtyWithReserve +
+          " фасадных кассет с учётом запаса " +
+          formatNum(r.reservePct, r.reservePct % 1 === 0 ? 0 : 1) +
+          "%.";
+        $("outComment").textContent = comment;
+
+        $("resultsSection").classList.remove("hidden");
+      }
+
+      var lastResult = null;
+
+      function runCalculate() {
+        hideError();
+        var r = validateAndCalculate();
+        if (r.error) {
+          showError(r.error);
+          $("resultsSection").classList.add("hidden");
+          lastResult = null;
+          return;
+        }
+        lastResult = r;
+        displayResults(r);
+      }
+
+      function runClear() {
+        $("calcForm").reset();
+        hideError();
+        $("resultsSection").classList.add("hidden");
+        lastResult = null;
+      }
+
+      function buildDownloadText() {
+        var r = lastResult;
+        if (!r || r.error) {
+          return null;
+        }
+        var lines = [
+          "Калькулятор расхода фасадных кассет",
+          "================================",
+          "",
+          "Результаты расчёта",
+          "------------------",
+          "Общая площадь фасада: " + formatNum(r.grossArea) + " м²",
+          "Чистая площадь облицовки: " + formatNum(r.netArea) + " м²",
+          "Площадь одной кассеты: " + formatNum(r.cassetteAreaM2) + " м²",
+          "Количество кассет: " + formatInt(r.qty) + " шт.",
+          "Количество кассет с запасом: " + formatInt(r.qtyWithReserve) + " шт.",
+          "Ориентировочная стоимость: " + formatNum(r.cost) + " ₽",
+          "",
+          "Комментарий",
+          "-----------",
+          $("outComment").textContent,
+          "",
+          "Дата: " + new Date().toLocaleString("ru-RU")
+        ];
+        return lines.join("\r\n");
+      }
+
+      function runDownload() {
+        var text = buildDownloadText();
+        if (!text) {
+          showError("Сначала выполните расчёт.");
+          return;
+        }
+        hideError();
+        var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "raschet-fasadnye-kassety.txt";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        var isDark = theme === "dark";
+        $("themeIcon").textContent = isDark ? "☀️" : "🌙";
+        $("themeLabel").textContent = isDark ? "Светлая" : "Тёмная";
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch (e) {}
+      }
+
+      function initTheme() {
+        var saved = null;
+        try {
+          saved = localStorage.getItem(THEME_KEY);
+        } catch (e) {}
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = saved === "dark" || saved === "light" ? saved : prefersDark ? "dark" : "light";
+        applyTheme(theme);
+      }
+
+      $("btnCalc").addEventListener("click", runCalculate);
+      $("btnClear").addEventListener("click", runClear);
+      $("btnDownload").addEventListener("click", runDownload);
+      $("btnPrint").addEventListener("click", runPrint);
+
+      $("themeToggle").addEventListener("click", function () {
+        var cur = document.documentElement.getAttribute("data-theme") || "light";
+        applyTheme(cur === "dark" ? "light" : "dark");
+      });
+
+      document.querySelectorAll(".btn-preset").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          $("cassetteW").value = btn.getAttribute("data-w");
+          $("cassetteH").value = btn.getAttribute("data-h");
+        });
+      });
+
+      $("calcForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        runCalculate();
+      });
+
+      initTheme();
+    })();
+  </script>
+</body>
+</html>

@@ -370,6 +370,62 @@
       display: block;
     }
 
+    .advantages-section {
+      margin-top: 2rem;
+    }
+
+    .advantages-section > h2 {
+      margin: 0 0 1.1rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .advantages-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 640px) {
+      .advantages-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .advantage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .advantage-card::before {
+      content: "";
+      display: block;
+      width: 2.5rem;
+      height: 3px;
+      margin: 0 auto 0.85rem;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .advantage-card:hover {
+      border-color: var(--accent);
+    }
+
+    .advantage-card h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
     .print-only {
       display: none;
     }
@@ -588,6 +644,21 @@
         <div class="comment-block">
           <h3>Комментарий</h3>
           <p id="outComment">—</p>
+        </div>
+      </section>
+
+      <section class="advantages-section no-print" aria-labelledby="advantages-title">
+        <h2 id="advantages-title">Преимущества калькулятора</h2>
+        <div class="advantages-grid">
+          <article class="advantage-card">
+            <h3>Быстрый расчёт</h3>
+          </article>
+          <article class="advantage-card">
+            <h3>Снижение ошибок</h3>
+          </article>
+          <article class="advantage-card">
+            <h3>Удобно для менеджера и производства</h3>
+          </article>
         </div>
       </section>
     </main>
